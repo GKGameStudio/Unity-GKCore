@@ -1,3 +1,4 @@
+#if FISHNET
 using System.Collections;
 using System.Collections.Generic;
 using FishNet.Object;
@@ -48,3 +49,4 @@ namespace GKCore.FishNet{
         }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if FISHNET
 using System;
 using System.Collections.Generic;
 using FishNet.Object;
@@ -17,3 +18,4 @@ public class NetworkMechanic : NetworkBehaviour
         mechanicOwnable.AddMechanic(GetType(), this);
     }
 }
+#endif

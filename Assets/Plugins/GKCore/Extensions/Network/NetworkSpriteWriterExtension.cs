@@ -1,3 +1,4 @@
+#if FISHNET
 using System.Collections;
 using System.Collections.Generic;
 using FishNet.Serializing;
@@ -18,3 +19,4 @@ public static class NetworkWriterExtensions
         return Resources.Load<Sprite>("Images/"+reader.ReadString());
     }
 }
+#endif

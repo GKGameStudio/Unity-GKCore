@@ -1,3 +1,4 @@
+#if FISHNET
 using FishNet.Object;
 
 namespace GKCore.FishNet{
@@ -10,3 +11,4 @@ namespace GKCore.FishNet{
         }
     }
 }
+#endif

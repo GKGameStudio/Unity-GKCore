@@ -10,9 +10,11 @@ public class Mechanic : MonoBehaviour
     public MechanicOwnable mechanicOwnable;
     void Awake(){
         mechanicOwnable = GetComponentInParent<MechanicOwner>(true);
+        #if FISHNET
         if(mechanicOwnable == null){
             mechanicOwnable = GetComponentInParent<NetworkMechanicOwner>(true);
         }
+        #endif
         mechanicOwnable.AddMechanic(GetType(), this);
     }
 }

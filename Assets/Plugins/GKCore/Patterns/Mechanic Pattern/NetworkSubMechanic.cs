@@ -1,3 +1,4 @@
+#if FISHNET
 using System;
 using System.Collections.Generic;
 using FishNet.Object;
@@ -21,3 +22,5 @@ public class NetworkSubMechanic<T> : NetworkMechanic
         }
     }
 }
+
+#endif

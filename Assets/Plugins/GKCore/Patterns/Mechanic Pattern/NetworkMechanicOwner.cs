@@ -1,3 +1,4 @@
+#if FISHNET
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,3 +21,4 @@ public class NetworkMechanicOwner : NetworkBehaviour, MechanicOwnable
         return (T)mechanics[typeof(T)];
     }
 }
+#endif
