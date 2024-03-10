@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using FishNet.Connection;
 using FishNet.Object;
+using GKCore.Observers;
 using Unity.VisualScripting;
 using UnityEngine;
 public class NetworkSubMechanic<T> : NetworkMechanic
@@ -21,205 +22,292 @@ public class NetworkSubMechanic<T> : NetworkMechanic
         }
     }
 
-    #region Synchronizing propertys for non-network object
+    #region Synchronizing fields for non-network object
     public Dictionary<string, object> syncProperties = new Dictionary<string, object>();
+    public Dictionary<string, object> observableSyncProperties = new Dictionary<string, object>();
     public double numberSyncThreshold = 0.0001;
-    public void RegisterSyncProperty(string propertyName){
-        syncProperties[propertyName] = GetMasterPropertyValue(propertyName);
+    #region Getter
+    private FieldInfo GetMasterFieldInfo(string fieldName){
+        FieldInfo fieldInfo = master.GetType().GetField(fieldName);
+        return fieldInfo;
     }
-    void Update(){
-        Dictionary<string, object> temp = new Dictionary<string, object>(syncProperties);
-        foreach(string propertyName in temp.Keys){
-            TrySyncPropertyValue(propertyName);
+    private object GetMasterFieldValue(string fieldName){
+        FieldInfo fieldInfo = GetMasterFieldInfo(fieldName);
+        return fieldInfo?.GetValue(master);
+    }
+    #endregion
+    #region Register
+    public void RegisterSyncVar(string fieldName){
+        FieldInfo fieldInfo = GetMasterFieldInfo(fieldName);
+        Debug.Log("RegisterSyncVar 1 " + fieldName + " " + fieldInfo.FieldType.Name);
+        if(fieldInfo == null) return;
+        Debug.Log("RegisterSyncVar 2 " + fieldName + " " + fieldInfo.FieldType.Name);
+        switch(fieldInfo.FieldType.Name){
+            case "Single":
+            case "Double":
+            case "Int32":
+            case "Int64":
+            case "String":
+            case "Boolean":
+                syncProperties[fieldName] = GetMasterFieldValue(fieldName);
+                Debug.Log("RegisterSyncVar " + fieldName + " " + fieldInfo.FieldType.Name);
+                break;
+            default:
+                Debug.LogError("Type " + fieldInfo.FieldType.Name + " not supported");
+                return;
         }
     }
-    /// <summary>
-    /// Synchronize property with the same name for the non-network object
-    /// </summary>
-    private void TrySyncPropertyValue(string propertyName){
+    public void RegisterObservableSyncVar<V>(string fieldName){
+        FieldInfo field = master.GetType().GetField(fieldName);
+        ValueObserver<V> observer = (ValueObserver<V>)field.GetValue(master);
+        if(observer == null){
+            Debug.LogError("Observable " + fieldName + " not found in " + master.GetType().Name);
+            return;
+        }
+        observer.AddListener((oldValue, newValue) => {
+            TrySyncObservableField(fieldName, newValue);
+        });
+    }
+    #endregion
+    void Update(){
+        Dictionary<string, object> temp = new Dictionary<string, object>(syncProperties);
+        foreach(string fieldName in temp.Keys){
+            TrySyncField(fieldName);
+        }
+    }
+    private void TrySyncField(string fieldName){
         // If not sender, return
         if(!isSender) return;
 
-        // Get property info
-        PropertyInfo propertyInfo = master.GetType().GetProperty(propertyName);
-        if(propertyInfo == null) return;
+        // Get fieldInfo info
+        FieldInfo fieldInfo = master.GetType().GetField(fieldName);
+        if(fieldInfo == null) return;
 
-        // Get value by property
-        object currentValue = GetMasterPropertyValue(propertyName);
+        // Get value by fieldInfo
+        object currentValue = GetMasterFieldValue(fieldName);
 
         // If value is not changed, return
-        if(syncProperties.ContainsKey(propertyName) && syncProperties[propertyName].Equals(currentValue)){
+        if(syncProperties.ContainsKey(fieldName) && syncProperties[fieldName].Equals(currentValue)){
             return;
         }
 
         // Check sync threshold
-        if(propertyInfo.PropertyType.Name == "Single" || propertyInfo.PropertyType.Name == "Double"){
-            if(Math.Abs((double)syncProperties[propertyName] - (double)currentValue) < numberSyncThreshold){
+        if(fieldInfo.FieldType.Name == "Single" || fieldInfo.FieldType.Name == "Double"){
+            if(Math.Abs((double)syncProperties[fieldName] - (double)currentValue) < numberSyncThreshold){
                 return;
             }
         }
 
         // Set value to syncProperties
-        syncProperties[propertyName] = currentValue;
+        syncProperties[fieldName] = currentValue;
 
         // Send to receiver
         if(IsServer){
-            switch(propertyInfo.PropertyType.Name){
+            switch(fieldInfo.FieldType.Name){
                 case "Single":
-                    SetMasterPropertyInClient(propertyName, (float)currentValue);
+                    SetMasterFieldInClient(fieldName, false, (float)currentValue);
                     break;
                 case "Double":
-                    SetMasterPropertyInClient(propertyName, (double)currentValue);
+                    SetMasterFieldInClient(fieldName, false, (double)currentValue);
                     break;
                 case "Int32":
-                    SetMasterPropertyInClient(propertyName, (int)currentValue);
+                    SetMasterFieldInClient(fieldName, false, (int)currentValue);
                     break;
                 case "Int64":
-                    SetMasterPropertyInClient(propertyName, (long)currentValue);
+                    SetMasterFieldInClient(fieldName, false, (long)currentValue);
                     break;
                 case "String":
-                    SetMasterPropertyInClient(propertyName, (string)currentValue);
+                    SetMasterFieldInClient(fieldName, false, (string)currentValue);
                     break;
                 case "Boolean":
-                    SetMasterPropertyInClient(propertyName, (bool)currentValue);
+                    SetMasterFieldInClient(fieldName, false, (bool)currentValue);
                     break;
                 default:
-                    Debug.LogError("Type " + propertyInfo.PropertyType.Name + " not supported");
+                    Debug.LogError("Type " + fieldInfo.FieldType.Name + " not supported");
                     break;
             }
         }else{
-            switch(propertyInfo.PropertyType.Name){
+            switch(fieldInfo.FieldType.Name){
                 case "Single":
-                    SetMasterPropertyInServer(propertyName, (float)currentValue);
+                    SetMasterFieldInServer(fieldName, false, (float)currentValue);
                     break;
                 case "Double":
-                    SetMasterPropertyInServer(propertyName, (double)currentValue);
+                    SetMasterFieldInServer(fieldName, false, (double)currentValue);
                     break;
                 case "Int32":
-                    SetMasterPropertyInServer(propertyName, (int)currentValue);
+                    SetMasterFieldInServer(fieldName, false, (int)currentValue);
                     break;
                 case "Int64":
-                    SetMasterPropertyInServer(propertyName, (long)currentValue);
+                    SetMasterFieldInServer(fieldName, false, (long)currentValue);
                     break;
                 case "String":
-                    SetMasterPropertyInServer(propertyName, (string)currentValue);
+                    SetMasterFieldInServer(fieldName, false, (string)currentValue);
                     break;
                 case "Boolean":
-                    SetMasterPropertyInServer(propertyName, (bool)currentValue);
+                    SetMasterFieldInServer(fieldName, false, (bool)currentValue);
                     break;
                 default:
-                    Debug.LogError("Type " + propertyInfo.PropertyType.Name + " not supported");
+                    Debug.LogError("Type " + fieldInfo.FieldType.Name + " not supported");
                     break;
             }
         }
     }
-    private object GetMasterPropertyValue(string propertyName){
-        PropertyInfo property = master.GetType().GetProperty(propertyName);
-        if(property == null){
-            Debug.LogError("Property " + propertyName + " not found in " + GetType().Name);
-            return null;
+    private void TrySyncObservableField(string fieldName, object observedNewValue){
+        if(!isSender) return;
+        if(IsServer){
+            switch(observedNewValue){
+                case float floatValue:
+                    SetMasterFieldInClient(fieldName, true, floatValue);
+                    break;
+                case double doubleValue:
+                    SetMasterFieldInClient(fieldName, true, doubleValue);
+                    break;
+                case int intValue:
+                    SetMasterFieldInClient(fieldName, true, intValue);
+                    break;
+                case long longValue:
+                    SetMasterFieldInClient(fieldName, true, longValue);
+                    break;
+                case string stringValue:
+                    SetMasterFieldInClient(fieldName, true, stringValue);
+                    break;
+                case bool boolValue:
+                    SetMasterFieldInClient(fieldName, true, boolValue);
+                    break;
+                default:
+                    Debug.LogError("Type " + observedNewValue.GetType().Name + " not supported");
+                    break;
+            }
+        }else{
+            switch(observedNewValue){
+                case float floatValue:
+                    SetMasterFieldInServer(fieldName, true, floatValue);
+                    break;
+                case double doubleValue:
+                    SetMasterFieldInServer(fieldName, true, doubleValue);
+                    break;
+                case int intValue:
+                    SetMasterFieldInServer(fieldName, true, intValue);
+                    break;
+                case long longValue:
+                    SetMasterFieldInServer(fieldName, true, longValue);
+                    break;
+                case string stringValue:
+                    SetMasterFieldInServer(fieldName, true, stringValue);
+                    break;
+                case bool boolValue:
+                    SetMasterFieldInServer(fieldName, true, boolValue);
+                    break;
+                default:
+                    Debug.LogError("Type " + observedNewValue.GetType().Name + " not supported");
+                    break;
+            }
         }
-        return property.GetValue(master);
+        
     }
-
+    #region RPCs
     ///--------------------------------------------------------
     [ObserversRpc]
-    private void SetMasterPropertyInClient(string propertyName, float value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInClient(string fieldName, bool isObserver, float value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ObserversRpc]
-    private void SetMasterPropertyInClient(string propertyName, double value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInClient(string fieldName, bool isObserver, double value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ObserversRpc]
-    private void SetMasterPropertyInClient(string propertyName, int value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInClient(string fieldName, bool isObserver, int value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ObserversRpc]
-    private void SetMasterPropertyInClient(string propertyName, long value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInClient(string fieldName, bool isObserver, long value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ObserversRpc]
-    private void SetMasterPropertyInClient(string propertyName, string value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInClient(string fieldName, bool isObserver, string value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ObserversRpc]
-    private void SetMasterPropertyInClient(string propertyName, bool value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInClient(string fieldName, bool isObserver, bool value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     ///--------------------------------------------------------
     [ServerRpc]
-    private void SetMasterPropertyInServer(string propertyName, object value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInServer(string fieldName, bool isObserver, object value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ServerRpc]
-    private void SetMasterPropertyInServer(string propertyName, float value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInServer(string fieldName, bool isObserver, float value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ServerRpc]
-    private void SetMasterPropertyInServer(string propertyName, double value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInServer(string fieldName, bool isObserver, double value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ServerRpc]
-    private void SetMasterPropertyInServer(string propertyName, int value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInServer(string fieldName, bool isObserver, int value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ServerRpc]
-    private void SetMasterPropertyInServer(string propertyName, long value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInServer(string fieldName, bool isObserver, long value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ServerRpc]
-    private void SetMasterPropertyInServer(string propertyName, string value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInServer(string fieldName, bool isObserver, string value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [ServerRpc]
-    private void SetMasterPropertyInServer(string propertyName, bool value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInServer(string fieldName, bool isObserver, bool value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     ///--------------------------------------------------------
     [TargetRpc]
-    private void SetMasterPropertyInOwner(NetworkConnection conn, string propertyName, object value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInOwner(NetworkConnection conn, string fieldName, bool isObserver,  object value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [TargetRpc]
-    private void SetMasterPropertyInOwner(NetworkConnection conn, string propertyName, float value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInOwner(NetworkConnection conn, string fieldName, bool isObserver,  float value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [TargetRpc]
-    private void SetMasterPropertyInOwner(NetworkConnection conn, string propertyName, double value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInOwner(NetworkConnection conn, string fieldName, bool isObserver,  double value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [TargetRpc]
-    private void SetMasterPropertyInOwner(NetworkConnection conn, string propertyName, int value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInOwner(NetworkConnection conn, string fieldName, bool isObserver,  int value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [TargetRpc]
-    private void SetMasterPropertyInOwner(NetworkConnection conn, string propertyName, long value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInOwner(NetworkConnection conn, string fieldName, bool isObserver,  long value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [TargetRpc]
-    private void SetMasterPropertyInOwner(NetworkConnection conn, string propertyName, string value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInOwner(NetworkConnection conn, string fieldName, bool isObserver,  string value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
     [TargetRpc]
-    private void SetMasterPropertyInOwner(NetworkConnection conn, string propertyName, bool value){
-        _SetMasterProperty(propertyName, value);
+    private void SetMasterFieldInOwner(NetworkConnection conn, string fieldName, bool isObserver,  bool value){
+        _SetMasterSyncVar(fieldName, isObserver, value);
     }
+    #endregion
 
 
-
-    private void _SetMasterProperty(string propertyName, object value){
+    private void _SetMasterSyncVar(string varName, bool isObserver, object value){
         // If sending to self, return
-        if(isSender){
+        // if(isSender){
+        //     return;
+        // }
+        FieldInfo fieldInfo = master.GetType().GetField(varName);
+        if(fieldInfo == null) return;
+        if(isObserver){
+            var observer = fieldInfo.GetValue(master);
+            observer.GetType().GetMethod("Set").Invoke(observer, new object[]{value, true});
+            Debug.Log($"Set observer {varName} (type: {fieldInfo.FieldType}) to {value} (type: {value.GetType()})");
+        }else{
+            fieldInfo.SetValue(master, value);
+            Debug.Log($"Set fieldInfo {varName} (type: {fieldInfo.FieldType}) to {value} (type: {value.GetType()})");
             return;
         }
-        PropertyInfo property = master.GetType().GetProperty(propertyName);
-        if(property == null){
-            Debug.LogError("Property " + propertyName + " not found in " + GetType().Name);
-            return;
-        }
-        Debug.Log($"Set property {propertyName} (type: {property.PropertyType}) to {value} (type: {value.GetType()})");
-        property.SetValue(master, value);
     }
     #endregion
 }
