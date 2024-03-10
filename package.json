@@ -1,0 +1,11 @@
+{
+  "name": "com.gkstudio.gkcore",
+  "displayName": "GKCore",
+  "version": "0.0.1",
+  "unity": "2022.3",
+  "description": "SMD Pattern with Networking Support",
+  "keywords": [ "gk", "gkcore", "SMD" , "mechanic" ],
+  "category": "tool",
+  "dependencies": {
+  }
+}
