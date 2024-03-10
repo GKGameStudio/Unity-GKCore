@@ -8,7 +8,6 @@ using UnityEngine;
 
 public class NetworkSubMechanic<T> : NetworkMechanic
 {
-    [ReadOnly]
     private T _master;
     public T master{
         get{

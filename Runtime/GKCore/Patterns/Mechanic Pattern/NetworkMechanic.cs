@@ -8,7 +8,6 @@ using UnityEngine;
 
 public class NetworkMechanic : NetworkBehaviour
 {
-    [ReadOnly]
     public MechanicOwnable mechanicOwnable;
     void Awake(){
         mechanicOwnable = GetComponentInParent<MechanicOwner>();
