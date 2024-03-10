@@ -5,14 +5,9 @@ using UnityEngine;
 
 public class Mechanic : MonoBehaviour
 {
-    public MechanicOwnable mechanicOwnable;
+    public MechanicOwner MechanicOwner;
     void Awake(){
-        mechanicOwnable = GetComponentInParent<MechanicOwner>(true);
-        #if FISHNET
-        if(mechanicOwnable == null){
-            mechanicOwnable = GetComponentInParent<NetworkMechanicOwner>(true);
-        }
-        #endif
-        mechanicOwnable.AddMechanic(GetType(), this);
+        MechanicOwner = GetComponentInParent<MechanicOwner>(true);
+        MechanicOwner.AddMechanic(GetType(), this);
     }
 }

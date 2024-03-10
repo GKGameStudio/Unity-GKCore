@@ -4,8 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MechanicOwner : MonoBehaviour, MechanicOwnable
+public class MechanicOwner : MonoBehaviour
 {
+    public new GameObject gameObject => this.gameObject;
     public Dictionary<Type, MonoBehaviour> mechanics = new Dictionary<Type, MonoBehaviour>();
 
     public void AddMechanic(Type type, MonoBehaviour mechanic)
