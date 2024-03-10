@@ -8,12 +8,12 @@ using UnityEngine;
 
 public class NetworkMechanic : NetworkBehaviour
 {
-    public MechanicOwner MechanicOwner;
+    public MechanicOwner mechanicOwner;
     public bool clientAuthoritative;
     public bool isSender => (IsClient && clientAuthoritative) || (IsServer && !clientAuthoritative);
     void Awake(){
-        MechanicOwner = GetComponentInParent<MechanicOwner>();
-        MechanicOwner.AddMechanic(GetType(), this);
+        mechanicOwner = GetComponentInParent<MechanicOwner>();
+        mechanicOwner.AddMechanic(GetType(), this);
     }
 }
 #endif
