@@ -18,7 +18,7 @@ namespace GKCore.Observers
     /// </summary>
     /// <typeparam name="T">Type of value.</typeparam>
     [Serializable]
-    public class ValueObserver<T>
+    public class ObservableValue<T>
     {
         [SerializeField] 
         private UnityEvent<T, T> _changed;
@@ -47,7 +47,7 @@ namespace GKCore.Observers
         /// </summary>
         /// <param name="value">Initial value.</param>
         /// <param name="changedCallback">Method that will be called when the value changes.</param>
-        public ValueObserver(T value, UnityAction<T, T> changedCallback = null)
+        public ObservableValue(T value, UnityAction<T, T> changedCallback = null)
         {
             _value = value;
             _changed = new UnityEvent<T, T>();
@@ -104,10 +104,10 @@ namespace GKCore.Observers
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as ValueObserver<T>);
+            return Equals(obj as ObservableValue<T>);
         }
 
-        public bool Equals(ValueObserver<T> other)
+        public bool Equals(ObservableValue<T> other)
         {
             if (other is null) return false;
             return Equals(_value, other._value);
@@ -234,44 +234,44 @@ namespace GKCore.Observers
             return Value.ToString();
         }
 
-        public static bool operator ==(ValueObserver<T> a, ValueObserver<T> b)
+        public static bool operator ==(ObservableValue<T> a, ObservableValue<T> b)
         {
             if (a is null && b is null) return true;
             if (a is null || b is null) return false;
             return Equals(a.Value, b.Value);
         }
 
-        public static bool operator !=(ValueObserver<T> a, ValueObserver<T> b)
+        public static bool operator !=(ObservableValue<T> a, ObservableValue<T> b)
         {
             if (a is null && b is null) return false;
             if (a is null || b is null) return true;
             return !Equals(a.Value, b.Value);
         }
 
-        public static bool operator ==(ValueObserver<T> a, T b)
+        public static bool operator ==(ObservableValue<T> a, T b)
         {
             if (a is null) return false;
             return Equals(a.Value, b);
         }
 
-        public static bool operator !=(ValueObserver<T> a, T b)
+        public static bool operator !=(ObservableValue<T> a, T b)
         {
             if (a is null) return true;
             return !Equals(a.Value, b);
         }
 
-        public static implicit operator T(ValueObserver<T> value)
+        public static implicit operator T(ObservableValue<T> value)
         {
             return value.Value;
         }
         
-        public static ValueObserver<T> operator +(ValueObserver<T> value, UnityAction<T, T> action)
+        public static ObservableValue<T> operator +(ObservableValue<T> value, UnityAction<T, T> action)
         {
             value.AddListener(action);
             return value;
         }
         
-        public static ValueObserver<T> operator -(ValueObserver<T> value, UnityAction<T, T> action)
+        public static ObservableValue<T> operator -(ObservableValue<T> value, UnityAction<T, T> action)
         {
             value.RemoveListener(action);
             return value;

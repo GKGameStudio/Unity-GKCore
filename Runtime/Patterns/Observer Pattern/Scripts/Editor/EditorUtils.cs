@@ -19,7 +19,7 @@ namespace GKCore.Observers.Editors
             {
                 if (_assetPath == null)
                 {
-                    string[] guids = AssetDatabase.FindAssets("t:asmdef ValueObserver-Editor");
+                    string[] guids = AssetDatabase.FindAssets("t:asmdef ObservableValue-Editor");
                     if (guids.Length > 0)
                     {
                         string path = AssetDatabase.GUIDToAssetPath(guids[0]);

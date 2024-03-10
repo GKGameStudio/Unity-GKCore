@@ -8,8 +8,8 @@ using UnityEngine.Events;
 
 namespace GKCore.Observers.Editors
 {
-	[CustomPropertyDrawer(typeof(ValueObserver<>))]
-	public class ValueObserverDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(ObservableValue<>))]
+	public class ObservableValueDrawer : PropertyDrawer
 	{
 		private bool _initialized;
 		

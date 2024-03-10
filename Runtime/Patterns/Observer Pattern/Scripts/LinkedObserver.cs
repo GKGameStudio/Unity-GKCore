@@ -37,7 +37,7 @@ namespace GKCore.Observers
 #pragma warning restore 0414
 
         [NonSerialized]
-        private ValueObserver<T> _valueObserver;
+        private ObservableValue<T> _ObservableValue;
         
         [NonSerialized]
         private bool _isObserverInitialized;
@@ -45,15 +45,15 @@ namespace GKCore.Observers
         /// <summary>
         /// Gets or sets the Value Observer.
         /// </summary>
-        public ValueObserver<T> Observer
+        public ObservableValue<T> Observer
         {
             get
             {
-                return _valueObserver;
+                return _ObservableValue;
             }
             set
             {
-                _valueObserver = value;
+                _ObservableValue = value;
             }
         }
 
@@ -65,7 +65,7 @@ namespace GKCore.Observers
             get
             {
                 if (!_isObserverInitialized) InitializeObserver();
-                if (_valueObserver != null) return _valueObserver.Value;
+                if (_ObservableValue != null) return _ObservableValue.Value;
                 return default;
             }
             set
@@ -90,11 +90,11 @@ namespace GKCore.Observers
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="valueObserver">Value Observer.</param>
+        /// <param name="ObservableValue">Value Observer.</param>
         /// <param name="changedCallback">Method that will be called when the value changes.</param>
-        public LinkedObserver(ValueObserver<T> valueObserver, UnityAction<T, T> changedCallback = null)
+        public LinkedObserver(ObservableValue<T> ObservableValue, UnityAction<T, T> changedCallback = null)
         {
-            _valueObserver = valueObserver;
+            _ObservableValue = ObservableValue;
             _isObserverInitialized = true;
             if (changedCallback != null) Observer?.AddListener(changedCallback);
         }
@@ -105,7 +105,7 @@ namespace GKCore.Observers
         /// <param name="action">Listener.</param>
         public void AddListener(UnityAction<T, T> action)
         {
-            _valueObserver?.AddListener(action);
+            _ObservableValue?.AddListener(action);
         }
         
         /// <summary>
@@ -114,7 +114,7 @@ namespace GKCore.Observers
         /// <param name="action">Listener.</param>
         public void AddValidation(UnityAction<Validatable<T>> action)
         {
-            _valueObserver?.AddValidation(action);
+            _ObservableValue?.AddValidation(action);
         }
         
         /// <summary>
@@ -124,7 +124,7 @@ namespace GKCore.Observers
         {
             _target = null;
             _propertyPath = null;
-            _valueObserver = null;
+            _ObservableValue = null;
         }
 
         private void InitializeObserver()
@@ -137,7 +137,7 @@ namespace GKCore.Observers
             FieldInfo fieldInfo = targetType.GetField(_propertyPath);
             if (fieldInfo != null)
             {
-                _valueObserver = (ValueObserver<T>)fieldInfo.GetValue(_target);
+                _ObservableValue = (ObservableValue<T>)fieldInfo.GetValue(_target);
             }
         }
 
@@ -146,7 +146,7 @@ namespace GKCore.Observers
         /// </summary>
         public void InvokeChanged()
         {
-            _valueObserver?.InvokeChanged(Value, Value);
+            _ObservableValue?.InvokeChanged(Value, Value);
         }
         
         /// <summary>
@@ -154,7 +154,7 @@ namespace GKCore.Observers
         /// </summary>
         public void RemoveAllListeners()
         {
-            _valueObserver?.RemoveAllListeners();
+            _ObservableValue?.RemoveAllListeners();
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace GKCore.Observers
         /// </summary>
         public void RemoveAllValidation()
         {
-            _valueObserver?.RemoveAllValidation();
+            _ObservableValue?.RemoveAllValidation();
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace GKCore.Observers
         /// <param name="action">Listener.</param>
         public void RemoveListener(UnityAction<T, T> action)
         {
-            _valueObserver?.RemoveListener(action);
+            _ObservableValue?.RemoveListener(action);
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace GKCore.Observers
         /// <param name="action">Listener.</param>
         public void RemoveValidation(UnityAction<Validatable<T>> action)
         {
-            _valueObserver?.RemoveValidation(action);
+            _ObservableValue?.RemoveValidation(action);
         }
 
         /// <summary>
@@ -191,10 +191,10 @@ namespace GKCore.Observers
         public void Set(T value, bool invokeChanged = true)
         {
             if (!_isObserverInitialized) InitializeObserver();
-            if (_valueObserver == null) return;
+            if (_ObservableValue == null) return;
             
-            if (Equals(_valueObserver.Value, value)) return;
-            _valueObserver.Set(value, invokeChanged);
+            if (Equals(_ObservableValue.Value, value)) return;
+            _ObservableValue.Set(value, invokeChanged);
         }
 
         public override string ToString()

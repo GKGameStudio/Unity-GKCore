@@ -102,7 +102,7 @@ namespace GKCore.Observers.Editors
             SerializedProperty nameProp = displayNameProperty.Copy();
 
             Type genericTypeArgument = fieldInfo.FieldType.GenericTypeArguments[0];
-            Type genericType = typeof(ValueObserver<>).MakeGenericType(genericTypeArgument);
+            Type genericType = typeof(ObservableValue<>).MakeGenericType(genericTypeArgument);
             string genericTypeStr = genericType.Name;
 
             GenericMenu menu = new GenericMenu();

@@ -235,7 +235,7 @@ namespace GKCore.Observers
         /// <returns>true if the specified object is equal to the current object; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
-            return obj is ValueObserver<T> other && Equals(other);
+            return obj is ObservableValue<T> other && Equals(other);
         }
 
         /// <summary>

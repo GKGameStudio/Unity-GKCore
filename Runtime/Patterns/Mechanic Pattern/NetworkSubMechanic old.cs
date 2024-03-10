@@ -5,11 +5,10 @@ using System.Reflection;
 using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
-using FishNet.Transporting;
 using GKCore.Observers;
 using Unity.VisualScripting;
 using UnityEngine;
-public class NetworkSubMechanic<T> : NetworkMechanic
+public class NetworkSubMechanicOld<T> : NetworkMechanic
 {
     private T _master;
     public T master{
@@ -59,22 +58,18 @@ public class NetworkSubMechanic<T> : NetworkMechanic
                 return;
         }
     }
-    public void RegisterObservableSyncVar<V>(ObservableValue<V> observableVar, SyncVar<V> syncVar){
-        syncVar = new SyncVar<V>(this, 0, WritePermission.ServerOnly, ReadPermission.Observers, 0.1f, Channel.Reliable, observableVar.Value);
-        if(isSender){
-            observableVar.AddListener((V oldValue, V newValue) => {
-                Debug.Log("strObserver.OnChange: " + oldValue + " " + newValue);
-                syncVar.SetValue(newValue, true);
-            });
-        }else{
-            syncVar.OnChange += (V oldValue, V newValue, bool asServer) => {
-                Debug.Log("strSyncVar.OnChange: " + oldValue + " " + newValue);
-                observableVar.Value = newValue;
-            };
+    public void RegisterObservableSyncVar<V>(string fieldName){
+        FieldInfo field = master.GetType().GetField(fieldName);
+        ObservableValue<V> observer = (ObservableValue<V>)field.GetValue(master);
+        if(observer == null){
+            Debug.LogError("Observable " + fieldName + " not found in " + master.GetType().Name);
+            return;
         }
+        observer.AddListener((oldValue, newValue) => {
+            TrySyncObservableField(fieldName, newValue);
+        });
     }
     public void RegisterObservableSyncList<V>(ObservableList<V> observableList, SyncList<V> syncList){
-        syncList = new SyncList<V>();
         if(isSender){
             observableList.OnChange += (ObservableListOperation op, int index, V oldItem, V newItem) => {
                 Debug.Log("strListObserver.OnChange: " + op + " " + index + " " + oldItem + " " + newItem);
