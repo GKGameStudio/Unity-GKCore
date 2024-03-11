@@ -6,7 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+#if UNITY_EDITOR
 using UnityEditor.Events;
+#endif
 using UnityEngine;
 using UnityEngine.Events;
 using Object = UnityEngine.Object;
