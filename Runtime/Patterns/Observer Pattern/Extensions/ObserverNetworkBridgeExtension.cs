@@ -1,8 +1,9 @@
 #if FISHNET_V4
+using System.Reflection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using GKCore.Observers;
-
+using UnityEngine.Events;
 public static class ObserverNetworkBridgeExtension{
     public static void LinkSyncVar<T>(this ObservableVar<T> observableVar, SyncVar<T> syncVar, NetworkMechanic nm){
         if(nm.isSender){

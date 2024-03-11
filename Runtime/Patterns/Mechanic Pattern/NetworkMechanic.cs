@@ -8,6 +8,7 @@ using UnityEngine;
 
 public class NetworkMechanic : NetworkBehaviour
 {
+    [HideInInspector]
     public MechanicOwner mechanicOwner;
     public bool clientAuthoritative;
     public bool isSender => (IsClientOnlyInitialized && clientAuthoritative) || (IsServerInitialized && !clientAuthoritative);
