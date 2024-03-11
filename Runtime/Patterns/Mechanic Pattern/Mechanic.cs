@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Mechanic : MonoBehaviour
 {
+    [HideInInspector]
     public MechanicOwner mechanicOwner;
     public T M<T>() where T : MonoBehaviour{
         return mechanicOwner.M<T>();
