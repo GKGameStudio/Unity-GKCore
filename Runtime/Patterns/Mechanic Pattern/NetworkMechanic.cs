@@ -12,9 +12,6 @@ public class NetworkMechanic : NetworkBehaviour
     public MechanicOwner mechanicOwner;
     public bool clientAuthoritative;
     public bool isSender => (IsClientOnlyInitialized && clientAuthoritative) || (IsServerInitialized && !clientAuthoritative);
-    void Awake(){
-        mechanicOwner = GetComponentInParent<MechanicOwner>();
-        mechanicOwner.AddMechanic(GetType(), this);
-    }
+    
 }
 #endif

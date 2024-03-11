@@ -10,8 +10,4 @@ public class Mechanic : MonoBehaviour
     public T M<T>() where T : MonoBehaviour{
         return mechanicOwner.M<T>();
     }
-    void Awake(){
-        mechanicOwner = GetComponentInParent<MechanicOwner>(true);
-        mechanicOwner.AddMechanic(GetType(), this);
-    }
 }

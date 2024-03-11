@@ -2,12 +2,30 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 public class MechanicOwner : MonoBehaviour
 {
     public new GameObject gameObject => this.gameObject;
     public Dictionary<Type, MonoBehaviour> mechanics = new Dictionary<Type, MonoBehaviour>();
+    void Awake(){
+        SearchMechanicsInChildren();
+    }
+    public void SearchMechanicsInChildren(){
+        foreach (var item in GetComponentsInChildren<Mechanic>(true))
+        {
+            Debug.Log("Found Mechanic: " + item.GetType());
+            item.mechanicOwner = this;
+            AddMechanic(item.GetType(), item);
+        }
+        foreach (var item in GetComponentsInChildren<NetworkMechanic>(true))
+        {
+            Debug.Log("Found Network Mechanic: " + item.GetType());
+            item.mechanicOwner = this;
+            AddMechanic(item.GetType(), item);
+        }
+    }
 
     public void AddMechanic(Type type, MonoBehaviour mechanic)
     {
