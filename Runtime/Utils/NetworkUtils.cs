@@ -1,4 +1,4 @@
-#if FISHNET
+#if FISHNET_V4
     using System.Collections;
     using System.Collections.Generic;
     using FishNet.Serializing;

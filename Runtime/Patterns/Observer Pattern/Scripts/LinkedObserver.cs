@@ -37,7 +37,7 @@ namespace GKCore.Observers
 #pragma warning restore 0414
 
         [NonSerialized]
-        private ObservableValue<T> _ObservableValue;
+        private ObservableVar<T> _ObservableValue;
         
         [NonSerialized]
         private bool _isObserverInitialized;
@@ -45,7 +45,7 @@ namespace GKCore.Observers
         /// <summary>
         /// Gets or sets the Value Observer.
         /// </summary>
-        public ObservableValue<T> Observer
+        public ObservableVar<T> Observer
         {
             get
             {
@@ -92,7 +92,7 @@ namespace GKCore.Observers
         /// </summary>
         /// <param name="ObservableValue">Value Observer.</param>
         /// <param name="changedCallback">Method that will be called when the value changes.</param>
-        public LinkedObserver(ObservableValue<T> ObservableValue, UnityAction<T, T> changedCallback = null)
+        public LinkedObserver(ObservableVar<T> ObservableValue, UnityAction<T, T> changedCallback = null)
         {
             _ObservableValue = ObservableValue;
             _isObserverInitialized = true;
@@ -137,7 +137,7 @@ namespace GKCore.Observers
             FieldInfo fieldInfo = targetType.GetField(_propertyPath);
             if (fieldInfo != null)
             {
-                _ObservableValue = (ObservableValue<T>)fieldInfo.GetValue(_target);
+                _ObservableValue = (ObservableVar<T>)fieldInfo.GetValue(_target);
             }
         }
 

@@ -1,4 +1,4 @@
-#if FISHNET
+#if FISHNET_V4
 using FishNet.Object;
 
 namespace GKCore.FishNet{

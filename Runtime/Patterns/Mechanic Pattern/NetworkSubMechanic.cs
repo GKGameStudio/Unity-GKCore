@@ -1,4 +1,4 @@
-#if FISHNET
+#if FISHNET_V4
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -24,23 +24,25 @@ public class NetworkSubMechanic<T> : NetworkMechanic
         }
     }
 
+    // public void RegisterObservableSyncVar<V>(ObservableValue<V> observableVar, SyncVar<V> syncVar){
+    //     if(isSender){
+    //         observableVar.AddListener((V oldValue, V newValue) => {
+    //             Debug.Log("strObserver.OnChange: " + oldValue + " " + newValue);
+    //             syncVar.Value = newValue;
+    //         });
+    //     }else{
+    //         syncVar.OnChange += (V oldValue, V newValue, bool asServer) => {
+    //             Debug.Log("strSyncVar.OnChange: " + oldValue + " " + newValue);
+    //             observableVar.Value = newValue;
+    //         };
+    //     }
+    // }
+    // public void Test<V>(SyncVar<V> syncVar, V value){
+    //     syncVar.Value = value;
+    // }
+    #if FISHNET_V3
     #region Register
-    public void RegisterObservableSyncVar<V>(ObservableValue<V> observableVar, SyncVar<V> syncVar){
-        syncVar = new SyncVar<V>(this, 0, WritePermission.ServerOnly, ReadPermission.Observers, 0.1f, Channel.Reliable, observableVar.Value);
-        if(isSender){
-            observableVar.AddListener((V oldValue, V newValue) => {
-                Debug.Log("strObserver.OnChange: " + oldValue + " " + newValue);
-                syncVar.SetValue(newValue, true);
-            });
-        }else{
-            syncVar.OnChange += (V oldValue, V newValue, bool asServer) => {
-                Debug.Log("strSyncVar.OnChange: " + oldValue + " " + newValue);
-                observableVar.Value = newValue;
-            };
-        }
-    }
     public void RegisterObservableSyncList<V>(ObservableList<V> observableList, SyncList<V> syncList){
-        syncList = new SyncList<V>();
         if(isSender){
             observableList.OnChange += (ObservableListOperation op, int index, V oldItem, V newItem) => {
                 Debug.Log("strListObserver.OnChange: " + op + " " + index + " " + oldItem + " " + newItem);
@@ -92,7 +94,6 @@ public class NetworkSubMechanic<T> : NetworkMechanic
         }
     }
     public void RegisterObservableSyncDictionary<K, V>(ObservableDictionary<K, V> observableDict, SyncDictionary<K, V> syncDict){
-        syncDict = new SyncDictionary<K, V>();
         if(isSender){
             observableDict.OnChange += (ObservableDictionaryOperation op, K key, V oldValue, V newValue) => {
                 Debug.Log("strDictObserver.OnChange: " + op + " " + key + " " + oldValue + " " + newValue);
@@ -132,6 +133,7 @@ public class NetworkSubMechanic<T> : NetworkMechanic
         }
     }
     #endregion
+    #endif
 }
 
 #endif
