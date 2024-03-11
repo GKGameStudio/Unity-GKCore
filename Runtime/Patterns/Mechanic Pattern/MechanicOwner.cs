@@ -17,6 +17,14 @@ public class MechanicOwner : MonoBehaviour
         }
         mechanics.Add(type, mechanic);
     }
+    public Mechanic GetMechanic(Type type)
+    {
+        if(mechanics.ContainsKey(type)){
+            return (Mechanic)mechanics[type];
+        }
+        Debug.Log("Mechanic not found");
+        return null;
+    }
 
     public T M<T>() where T : MonoBehaviour{
         return (T)mechanics[typeof(T)];
