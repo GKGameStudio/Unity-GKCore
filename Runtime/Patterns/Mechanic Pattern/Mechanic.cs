@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class Mechanic : MonoBehaviour
 {
-    public MechanicOwner MechanicOwner;
+    public MechanicOwner mechanicOwner;
     void Awake(){
-        MechanicOwner = GetComponentInParent<MechanicOwner>(true);
-        MechanicOwner.AddMechanic(GetType(), this);
+        mechanicOwner = GetComponentInParent<MechanicOwner>(true);
+        mechanicOwner.AddMechanic(GetType(), this);
     }
 }
