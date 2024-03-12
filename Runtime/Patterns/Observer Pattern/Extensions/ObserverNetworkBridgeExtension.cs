@@ -5,19 +5,19 @@ using FishNet.Object.Synchronizing;
 using GKCore.Observers;
 using UnityEngine.Events;
 public static class ObserverNetworkBridgeExtension{
-    public static void LinkSyncVar<T>(this ObservableVar<T> observableVar, SyncVar<T> syncVar, NetworkMechanic nm){
-        if(nm.isSender){
+    public static void LinkSyncVar<T>(this ObservableVar<T> observableVar, NetworkMechanic nm, SyncVar<T> syncVar, SyncDirection syncDirection = SyncDirection.ServerToAllClient){
+        if(nm.IsSender(syncDirection)){
             observableVar.AddListener((oldValue, newValue) => {
                 syncVar.Value = newValue;
             });
-        }else{
+        }else if(nm.IsReceiver(syncDirection)){
             syncVar.OnChange += (oldValue, newValue, asServer) => {
                 observableVar.Value = newValue;
             };
         }
     }
-    public static void LinkSyncList<T>(this ObservableList<T> observableList, SyncList<T> syncList, NetworkMechanic nm){
-        if(nm.isSender){
+    public static void LinkSyncList<T>(this ObservableList<T> observableList, NetworkMechanic nm, SyncList<T> syncList, SyncDirection syncDirection = SyncDirection.ServerToAllClient){
+        if(nm.IsSender(syncDirection)){
             observableList.OnChange += (ObservableListOperation op, int index, T oldItem, T newItem) => {
                 switch(op){
                     case ObservableListOperation.Add:
@@ -37,7 +37,7 @@ public static class ObserverNetworkBridgeExtension{
                         break;
                 }
             };
-        }else{
+        }else if(nm.IsReceiver(syncDirection)){
             syncList.OnChange += (SyncListOperation op, int index, T oldItem, T newItem, bool asServer) => {
                 switch(op){
                     case SyncListOperation.Add:
@@ -59,8 +59,8 @@ public static class ObserverNetworkBridgeExtension{
             };
         }
     }
-    public static void LinkSyncDictionary<TKey, TValue>(this ObservableDictionary<TKey, TValue> observableDictionary, SyncDictionary<TKey, TValue> syncDictionary, NetworkMechanic nm){
-        if(nm.isSender){
+    public static void LinkSyncDictionary<TKey, TValue>(this ObservableDictionary<TKey, TValue> observableDictionary, NetworkMechanic nm, SyncDictionary<TKey, TValue> syncDictionary, SyncDirection syncDirection = SyncDirection.ServerToAllClient){
+        if(nm.IsSender(syncDirection)){
             observableDictionary.OnChange += (ObservableDictionaryOperation op, TKey key, TValue oldValue, TValue newValue) => {
                 switch(op){
                     case ObservableDictionaryOperation.Add:
@@ -77,7 +77,7 @@ public static class ObserverNetworkBridgeExtension{
                         break;
                 }
             };
-        }else{
+        }else if(nm.IsReceiver(syncDirection)){
             syncDictionary.OnChange += (SyncDictionaryOperation op, TKey key, TValue newValue, bool asServer) => {
                 switch(op){
                     case SyncDictionaryOperation.Add:
@@ -96,6 +96,7 @@ public static class ObserverNetworkBridgeExtension{
             };
         }
     }
+
 }
 
 #endif

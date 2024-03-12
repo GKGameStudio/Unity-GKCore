@@ -47,4 +47,7 @@ public class MechanicOwner : MonoBehaviour
     public T M<T>() where T : MonoBehaviour{
         return (T)mechanics[typeof(T)];
     }
+    public bool H<T>() where T : MonoBehaviour{
+        return mechanics.ContainsKey(typeof(T));
+    }
 }

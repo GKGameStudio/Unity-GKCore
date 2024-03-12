@@ -70,7 +70,7 @@ public class NetworkSubMechanicOld<T> : NetworkMechanic
         });
     }
     public void RegisterObservableSyncList<V>(ObservableList<V> observableList, SyncList<V> syncList){
-        if(isSender){
+        if(IsSender(syncDirection)){
             observableList.OnChange += (ObservableListOperation op, int index, V oldItem, V newItem) => {
                 Debug.Log("strListObserver.OnChange: " + op + " " + index + " " + oldItem + " " + newItem);
                 switch(op){
@@ -129,7 +129,7 @@ public class NetworkSubMechanicOld<T> : NetworkMechanic
     }
     private void TrySyncField(string fieldName){
         // If not sender, return
-        if(!isSender) return;
+        if(!IsSender(syncDirection)) return;
 
         // Get fieldInfo info
         FieldInfo fieldInfo = master.GetType().GetField(fieldName);
@@ -205,7 +205,7 @@ public class NetworkSubMechanicOld<T> : NetworkMechanic
         }
     }
     private void TrySyncObservableField(string fieldName, object observedNewValue){
-        if(!isSender) return;
+        if(!IsSender(syncDirection)) return;
         if(IsServer){
             switch(observedNewValue){
                 case float floatValue:
@@ -344,7 +344,7 @@ public class NetworkSubMechanicOld<T> : NetworkMechanic
     #endregion
     private void _SetMasterSyncVar(string varName, bool isObserver, object value){
         // If sending to self, return
-        // if(isSender){
+        // if(IsSender(syncDirection)){
         //     return;
         // }
         FieldInfo fieldInfo = master.GetType().GetField(varName);
