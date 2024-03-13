@@ -18,12 +18,14 @@ public class MechanicOwner : MonoBehaviour
             item.mechanicOwner = this;
             AddMechanic(item.GetType(), item);
         }
+        #if FISHNET_V4
         foreach (var item in GetComponentsInChildren<NetworkMechanic>(true))
         {
             Debug.Log("Found Network Mechanic: " + item.GetType());
             item.mechanicOwner = this;
             AddMechanic(item.GetType(), item);
         }
+        #endif
     }
 
     public void AddMechanic(Type type, MonoBehaviour mechanic)
