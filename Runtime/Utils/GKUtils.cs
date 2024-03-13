@@ -395,4 +395,17 @@ public class GKUtils : MonoBehaviour
         forwardVector = Quaternion.AngleAxis(yaw, upVector) * forwardVector;
         return forwardVector;
     }
+    public static string GetMethodSignatureText(MethodInfo methodInfo){
+        //If has parameters
+        if(methodInfo.GetParameters().Length > 0){
+            string parameters = "";
+            foreach(var parameter in methodInfo.GetParameters()){
+                parameters += parameter.ParameterType.Name + " " + parameter.Name + ", ";
+            }
+            parameters = parameters.Substring(0, parameters.Length - 2);
+            return methodInfo.ReturnType.Name + " " + methodInfo.Name + "(" + parameters + ")";
+        }
+        //If has no parameters
+        return methodInfo.ReturnType.Name + " " + methodInfo.Name + "()";
+    }
 }
