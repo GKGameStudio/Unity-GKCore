@@ -56,7 +56,12 @@ public class NetworkSubMechanic<T> : NetworkMechanic where T : Mechanic
     public static HashSet<Type> patchedSet = new HashSet<Type>();
 
     public static Dictionary<Mechanic, NetworkMechanic> integratedNetworkSubMechanic = new Dictionary<Mechanic, NetworkMechanic>();
-    
+
+    public override void OnStartNetwork()
+    {
+        base.OnStartNetwork();
+        LoadAndPatchAllNetworkMethods();
+    }
     [Button]
     public void LogAllMasterMethods(){
         networkMethodInfos.ForEach((networkMethodInfo)=>{
