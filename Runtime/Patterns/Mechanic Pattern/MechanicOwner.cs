@@ -41,7 +41,7 @@ public class MechanicOwner : MonoBehaviour
         if(mechanics.ContainsKey(type)){
             return (Mechanic)mechanics[type];
         }
-        Debug.Log("Mechanic not found");
+        Debug.Log("Mechanic not found: "+type);
         return null;
     }
 
