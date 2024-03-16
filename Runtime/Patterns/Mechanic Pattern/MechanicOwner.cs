@@ -11,20 +11,12 @@ public class MechanicOwner : MonoBehaviour
         SearchMechanicsInChildren();
     }
     public void SearchMechanicsInChildren(){
-        foreach (var item in GetComponentsInChildren<Mechanic>(true))
+        foreach (var item in GetComponentsInChildren<MonoBehaviour>(true))
         {
             Debug.Log("Found Mechanic: " + item.GetType());
             item.mechanicOwner = this;
             AddMechanic(item.GetType(), item);
         }
-        #if FISHNET_V4
-        foreach (var item in GetComponentsInChildren<NetworkMechanic>(true))
-        {
-            Debug.Log("Found Network Mechanic: " + item.GetType());
-            item.mechanicOwner = this;
-            AddMechanic(item.GetType(), item);
-        }
-        #endif
     }
 
     public void AddMechanic(Type type, MonoBehaviour mechanic)
