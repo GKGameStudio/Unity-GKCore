@@ -9,9 +9,9 @@ using FishNet.Managing.Client;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
+using GameKit.Dependencies.Utilities;
 using GKCore.Observers;
 using HarmonyLib;
-using LinqToDB.Extensions;
 using Sirenix.OdinInspector;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -103,23 +103,23 @@ public class NetworkSubMechanic<T> : NetworkMechanic where T : Mechanic
             Type[] types = methodInfo.GetParameters().Select(x=>x.ParameterType).ToArray();
             MethodInfo foundMethodInfo = GetType().GetMethod(methodInfo.Name, types);
             if(foundMethodInfo != null){
-                ServerAttribute serverAttribute = foundMethodInfo.GetAttribute<ServerAttribute>();
+                ServerAttribute serverAttribute = foundMethodInfo.GetCustomAttribute<ServerAttribute>();
                 if(serverAttribute != null){
                     networkMethodType = NetworkMethodType.ServerOnly;
                 }
-                ClientAttribute clientAttribute = foundMethodInfo.GetAttribute<ClientAttribute>();
+                ClientAttribute clientAttribute = foundMethodInfo.GetCustomAttribute<ClientAttribute>();
                 if(clientAttribute != null){
                     networkMethodType = NetworkMethodType.ClientOnly;
                 }
-                ServerRpcAttribute serverRpcAttribute = foundMethodInfo.GetAttribute<ServerRpcAttribute>();
+                ServerRpcAttribute serverRpcAttribute = foundMethodInfo.GetCustomAttribute<ServerRpcAttribute>();
                 if(serverRpcAttribute != null){
                     networkMethodType = NetworkMethodType.ServerRpc;
                 }
-                ObserversRpcAttribute clientRpcAttribute = foundMethodInfo.GetAttribute<ObserversRpcAttribute>();
+                ObserversRpcAttribute clientRpcAttribute = foundMethodInfo.GetCustomAttribute<ObserversRpcAttribute>();
                 if(clientRpcAttribute != null){
                     networkMethodType = NetworkMethodType.ClientRpc;
                 }
-                TargetRpcAttribute targetRpcAttribute = foundMethodInfo.GetAttribute<TargetRpcAttribute>();
+                TargetRpcAttribute targetRpcAttribute = foundMethodInfo.GetCustomAttribute<TargetRpcAttribute>();
                 if(targetRpcAttribute != null){
                     networkMethodType = NetworkMethodType.TargetRpc;
                 }
