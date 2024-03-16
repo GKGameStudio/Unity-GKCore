@@ -14,7 +14,16 @@ public class MechanicOwner : MonoBehaviour
         foreach (var item in GetComponentsInChildren<MonoBehaviour>(true))
         {
             Debug.Log("Found Mechanic: " + item.GetType());
-            item.mechanicOwner = this;
+            if(item is Mechanic){
+                Mechanic mechanic = (Mechanic)item;
+                mechanic.mechanicOwner = this;
+            }
+            #if FISHNET_V4
+            if(item is NetworkMechanic){
+                NetworkMechanic mechanic = (NetworkMechanic)item;
+                mechanic.mechanicOwner = this;
+            }
+            #endif
             AddMechanic(item.GetType(), item);
         }
     }
