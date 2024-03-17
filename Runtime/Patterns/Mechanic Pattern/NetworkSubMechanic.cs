@@ -9,7 +9,6 @@ using FishNet.Managing.Client;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
-using GameKit.Dependencies.Utilities;
 using GKCore.Observers;
 using HarmonyLib;
 using Sirenix.OdinInspector;
